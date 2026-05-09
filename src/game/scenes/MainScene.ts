@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { openingDialogue, progressDialogue, winDialogue } from "../data/dialogues";
+import { failedWindDialogue, openingDialogue, paulActionComments, progressDialogue, winDialogue } from "../data/dialogues";
 import { firstQuest } from "../data/quests";
 import { Kyle, type KyleSprite } from "../entities/Kyle";
 import { Paul } from "../entities/Paul";
@@ -11,6 +11,7 @@ const TILE_SIZE = 64;
 const PLAYER_SPEED = 210;
 const GUST_RANGE = 112;
 const GUST_PUSH_SPEED = 622;
+const WIND_COOLDOWN_MS = 650;
 
 type MovementKeys = {
   up: Phaser.Input.Keyboard.Key;
@@ -33,6 +34,9 @@ export class MainScene extends Phaser.Scene {
   private dialogue = new DialogueSystem();
   private quest!: QuestSystem;
   private hasPlayedProgressDialogue = false;
+  private nextWindReadyAt = 0;
+  private windCastCount = 0;
+  private nextPaulCommentAt = 3;
   private won = false;
 
   constructor() {
@@ -43,6 +47,9 @@ export class MainScene extends Phaser.Scene {
     this.objects = [];
     this.goalTiles = [];
     this.hasPlayedProgressDialogue = false;
+    this.nextWindReadyAt = 0;
+    this.windCastCount = 0;
+    this.nextPaulCommentAt = 3;
     this.won = false;
 
     this.createWorld();
@@ -58,7 +65,7 @@ export class MainScene extends Phaser.Scene {
 
     if (!this.dialogue.isOpen() && !this.won) {
       this.moveKyle();
-      this.castWindIfReady();
+      this.castWindIfReady(this.time.now);
     } else {
       this.kyle.body.setVelocity(0, 0);
     }
@@ -157,27 +164,55 @@ export class MainScene extends Phaser.Scene {
     }
   }
 
-  private castWindIfReady(): void {
+  private castWindIfReady(now: number): void {
     if (!this.spaceKey || !Phaser.Input.Keyboard.JustDown(this.spaceKey)) return;
+    if (now < this.nextWindReadyAt) {
+      this.showCooldownFizzle();
+      return;
+    }
 
     const origin = new Phaser.Math.Vector2(this.kyle.x, this.kyle.y);
+    this.nextWindReadyAt = now + WIND_COOLDOWN_MS;
+    this.windCastCount += 1;
     this.showWindGust(origin);
-    this.pushObjectsInWindCone(origin);
+    const pushedCount = this.pushObjectsInWindCone(origin);
+    this.reactToWindCast(pushedCount);
   }
 
   private showWindGust(origin: Phaser.Math.Vector2): void {
+    const angle = this.lastFacing.angle();
     const end = origin.clone().add(this.lastFacing.clone().scale(GUST_RANGE));
+    const left = new Phaser.Math.Vector2(Math.cos(angle - 0.42), Math.sin(angle - 0.42))
+      .scale(GUST_RANGE)
+      .add(origin);
+    const right = new Phaser.Math.Vector2(Math.cos(angle + 0.42), Math.sin(angle + 0.42))
+      .scale(GUST_RANGE)
+      .add(origin);
+    const cone = this.add.graphics();
+    cone.fillStyle(0x9ee6ff, 0.2);
+    cone.lineStyle(2, 0xd6f7ff, 0.45);
+    cone.beginPath();
+    cone.moveTo(origin.x, origin.y);
+    cone.lineTo(left.x, left.y);
+    cone.lineTo(right.x, right.y);
+    cone.closePath();
+    cone.fillPath();
+    cone.strokePath();
+
     const gust = this.add
       .arc(origin.x, origin.y, GUST_RANGE, -28, 28, false, 0x9ee6ff, 0.35)
-      .setRotation(this.lastFacing.angle())
+      .setRotation(angle)
       .setStrokeStyle(6, 0x9ee6ff, 0.35);
 
     this.tweens.add({
-      targets: gust,
+      targets: [cone, gust],
       alpha: 0,
       scale: 1.35,
-      duration: 180,
-      onComplete: () => gust.destroy(),
+      duration: 220,
+      onComplete: () => {
+        cone.destroy();
+        gust.destroy();
+      },
     });
 
     const gustLine = this.add.line(0, 0, origin.x, origin.y, end.x, end.y, 0xeffcff, 0.34).setLineWidth(5);
@@ -189,7 +224,20 @@ export class MainScene extends Phaser.Scene {
     });
   }
 
-  private pushObjectsInWindCone(origin: Phaser.Math.Vector2): void {
+  private showCooldownFizzle(): void {
+    const puff = this.add.circle(this.kyle.x, this.kyle.y, 18, 0xd6f7ff, 0.28).setStrokeStyle(2, 0x9ee6ff, 0.55);
+    this.tweens.add({
+      targets: puff,
+      alpha: 0,
+      scale: 1.5,
+      duration: 180,
+      onComplete: () => puff.destroy(),
+    });
+  }
+
+  private pushObjectsInWindCone(origin: Phaser.Math.Vector2): number {
+    let pushedCount = 0;
+
     for (const object of this.objects) {
       if (object.solved) continue;
 
@@ -201,7 +249,25 @@ export class MainScene extends Phaser.Scene {
       const directionScore = toObject.normalize().dot(this.lastFacing);
       if (directionScore > 0.55) {
         object.body.setVelocity(this.lastFacing.x * GUST_PUSH_SPEED, this.lastFacing.y * GUST_PUSH_SPEED);
+        pushedCount += 1;
       }
+    }
+
+    return pushedCount;
+  }
+
+  private reactToWindCast(pushedCount: number): void {
+    if (this.dialogue.isOpen() || this.won) return;
+
+    if (pushedCount === 0) {
+      this.dialogue.show(failedWindDialogue);
+      return;
+    }
+
+    if (this.windCastCount >= this.nextPaulCommentAt) {
+      const commentIndex = Math.floor(this.windCastCount / 3 - 1) % paulActionComments.length;
+      this.nextPaulCommentAt += 3;
+      this.dialogue.show(paulActionComments[commentIndex]);
     }
   }
 

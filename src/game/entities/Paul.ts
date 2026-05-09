@@ -1,15 +1,15 @@
 import Phaser from "phaser";
 
+type PaulDirection = "front" | "back" | "left" | "right";
+
 export class Paul {
-  readonly sprite: Phaser.GameObjects.Container;
+  readonly sprite: Phaser.GameObjects.Sprite;
+  private direction: PaulDirection = "front";
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    this.sprite = scene.add.container(x, y);
-
-    const body = scene.add.circle(0, 0, 22, 0xdcc56a).setStrokeStyle(3, 0xfff7b5);
-    const bolt = scene.add.line(0, 0, -5, -18, 7, -4, 0xffffff).setLineWidth(4);
-
-    this.sprite.add([body, bolt]);
+    this.sprite = scene.add.sprite(x, y, "paul-front");
+    this.sprite.setDisplaySize(46, 74);
+    this.sprite.setOrigin(0.5, 0.82);
   }
 
   follow(target: Phaser.GameObjects.Container, deltaSeconds: number): void {
@@ -22,6 +22,22 @@ export class Paul {
       const step = Math.min((distance - targetDistance) * 4 * deltaSeconds, distance);
       this.sprite.x += (dx / distance) * step;
       this.sprite.y += (dy / distance) * step;
+      this.setDirectionFromMovement(dx, dy);
+    }
+  }
+
+  private setDirectionFromMovement(dx: number, dy: number): void {
+    let nextDirection: PaulDirection;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+      nextDirection = dx > 0 ? "right" : "left";
+    } else {
+      nextDirection = dy > 0 ? "front" : "back";
+    }
+
+    if (nextDirection !== this.direction) {
+      this.direction = nextDirection;
+      this.sprite.setTexture(`paul-${nextDirection}`);
     }
   }
 }

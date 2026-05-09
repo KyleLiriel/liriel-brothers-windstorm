@@ -35,6 +35,38 @@ export const progressDialogue: DialogueLine[] = [
   },
 ];
 
+export const failedWindDialogue: DialogueLine[] = [
+  {
+    speaker: "Kyle",
+    text: "That gust was supposed to look much more impressive.",
+  },
+  {
+    speaker: "Paul",
+    text: "It impressed the air. Nothing else.",
+  },
+];
+
+export const paulActionComments: DialogueLine[][] = [
+  [
+    {
+      speaker: "Paul",
+      text: "Try aiming before you unleash weather indoors.",
+    },
+  ],
+  [
+    {
+      speaker: "Paul",
+      text: "Careful, Kyle. Heroic winds still count as property damage.",
+    },
+  ],
+  [
+    {
+      speaker: "Paul",
+      text: "That one almost looked intentional.",
+    },
+  ],
+];
+
 export const winDialogue: DialogueLine[] = [
   {
     speaker: "Kyle",
@@ -47,5 +79,9 @@ export const winDialogue: DialogueLine[] = [
   {
     speaker: "Kyle",
     text: "I am not a goblin. And you are still suspicious.",
+  },
+  {
+    speaker: "Paul",
+    text: "Victory, then. A tiny, noisy, suspicious victory.",
   },
 ];

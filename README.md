@@ -22,8 +22,13 @@ npm run build
 ## Controls
 
 - Arrow keys or WASD: move Kyle.
-- Space: cast a wind spell.
+- Space: cast a wind spell. The spell has a short cooldown, so aim before casting.
 - Enter or click: advance dialogue and start from the title screen.
+
+## Assets
+
+- `public/assets/paul/PaulLiriel.png`: user-provided Paul Liriel character sheet.
+- `public/assets/paul/paul-*.png`: gameplay crops derived from the provided Paul sheet.
 
 ## Project Structure
 

@@ -5,6 +5,13 @@ export class BootScene extends Phaser.Scene {
     super("BootScene");
   }
 
+  preload(): void {
+    this.load.image("paul-front", "/assets/paul/paul-front.png");
+    this.load.image("paul-back", "/assets/paul/paul-back.png");
+    this.load.image("paul-left", "/assets/paul/paul-left.png");
+    this.load.image("paul-right", "/assets/paul/paul-right.png");
+  }
+
   create(): void {
     const { width, height } = this.scale;
 

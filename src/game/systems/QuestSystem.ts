@@ -34,7 +34,7 @@ export class QuestSystem {
   showSolvedMessage(): void {
     if (!this.objectiveEl) return;
     this.objectiveEl.classList.remove("hidden");
-    this.objectiveEl.textContent = "Puzzle solved. The brothers survived one room together.";
+    this.objectiveEl.textContent = "Victory! All 3 objects are placed correctly.";
   }
 
   private updateObjective(): void {
