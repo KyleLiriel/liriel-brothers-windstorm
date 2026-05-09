@@ -10,16 +10,18 @@ import { QuestSystem } from "../systems/QuestSystem";
 const TILE_SIZE = 64;
 const PLAYER_SPEED = 210;
 const GUST_RANGE = 112;
-const GUST_PUSH = 148;
+const GUST_PUSH_SPEED = 622;
+
+type MovementKeys = {
+  up: Phaser.Input.Keyboard.Key;
+  down: Phaser.Input.Keyboard.Key;
+  left: Phaser.Input.Keyboard.Key;
+  right: Phaser.Input.Keyboard.Key;
+};
 
 export class MainScene extends Phaser.Scene {
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
-  private wasd?: {
-    up: Phaser.Input.Keyboard.Key;
-    down: Phaser.Input.Keyboard.Key;
-    left: Phaser.Input.Keyboard.Key;
-    right: Phaser.Input.Keyboard.Key;
-  };
+  private wasd?: MovementKeys;
   private spaceKey?: Phaser.Input.Keyboard.Key;
   private enterKey?: Phaser.Input.Keyboard.Key;
   private kyle!: KyleSprite;
@@ -159,7 +161,12 @@ export class MainScene extends Phaser.Scene {
     if (!this.spaceKey || !Phaser.Input.Keyboard.JustDown(this.spaceKey)) return;
 
     const origin = new Phaser.Math.Vector2(this.kyle.x, this.kyle.y);
-    const gustEnd = origin.clone().add(this.lastFacing.clone().scale(GUST_RANGE));
+    this.showWindGust(origin);
+    this.pushObjectsInWindCone(origin);
+  }
+
+  private showWindGust(origin: Phaser.Math.Vector2): void {
+    const end = origin.clone().add(this.lastFacing.clone().scale(GUST_RANGE));
     const gust = this.add
       .arc(origin.x, origin.y, GUST_RANGE, -28, 28, false, 0x9ee6ff, 0.35)
       .setRotation(this.lastFacing.angle())
@@ -173,24 +180,29 @@ export class MainScene extends Phaser.Scene {
       onComplete: () => gust.destroy(),
     });
 
-    for (const object of this.objects) {
-      if (object.solved) continue;
-
-      const toObject = new Phaser.Math.Vector2(object.x - origin.x, object.y - origin.y);
-      const distance = toObject.length();
-      const directionScore = toObject.normalize().dot(this.lastFacing);
-      if (distance <= GUST_RANGE && directionScore > 0.55) {
-        object.body.setVelocity(this.lastFacing.x * GUST_PUSH * 4.2, this.lastFacing.y * GUST_PUSH * 4.2);
-      }
-    }
-
-    const gustLine = this.add.line(0, 0, origin.x, origin.y, gustEnd.x, gustEnd.y, 0xeffcff, 0.34).setLineWidth(5);
+    const gustLine = this.add.line(0, 0, origin.x, origin.y, end.x, end.y, 0xeffcff, 0.34).setLineWidth(5);
     this.tweens.add({
       targets: gustLine,
       alpha: 0,
       duration: 160,
       onComplete: () => gustLine.destroy(),
     });
+  }
+
+  private pushObjectsInWindCone(origin: Phaser.Math.Vector2): void {
+    for (const object of this.objects) {
+      if (object.solved) continue;
+
+      const toObject = new Phaser.Math.Vector2(object.x - origin.x, object.y - origin.y);
+      const distance = toObject.length();
+      if (distance === 0 || distance > GUST_RANGE) continue;
+
+      // Dot product keeps the gust directional: objects must be close and mostly in front of Kyle.
+      const directionScore = toObject.normalize().dot(this.lastFacing);
+      if (directionScore > 0.55) {
+        object.body.setVelocity(this.lastFacing.x * GUST_PUSH_SPEED, this.lastFacing.y * GUST_PUSH_SPEED);
+      }
+    }
   }
 
   private checkGoals(): void {

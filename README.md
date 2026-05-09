@@ -25,6 +25,22 @@ npm run build
 - Space: cast a wind spell.
 - Enter or click: advance dialogue and start from the title screen.
 
+## Project Structure
+
+```text
+src/
+├─ main.ts                 # Phaser game setup
+├─ styles.css              # Page and dialogue overlay styles
+└─ game/
+   ├─ scenes/              # Boot/title, main gameplay, and UI scene shell
+   ├─ entities/            # Kyle, Paul, and movable wind puzzle objects
+   ├─ systems/             # Dialogue and quest/puzzle state helpers
+   └─ data/                # Dialogue lines and quest layout data
+docs/
+├─ game-design.md          # Concept, characters, and future ideas
+└─ roadmap.md              # Short next-step plan
+```
+
 ## First Playable Goal
 
 Push all three movable objects onto the glowing tiles. Paul follows Kyle and reacts as the puzzle progresses. When all tiles are filled, the win dialogue appears.
