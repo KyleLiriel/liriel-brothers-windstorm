@@ -27,6 +27,8 @@ npm run build
 
 ## Assets
 
+- `public/assets/kyle/KyleLiriel2.png`: user-provided Kyle Liriel character sheet.
+- `public/assets/kyle/kyle-*.png`: gameplay crops and right-walk frames derived from the provided Kyle sheet.
 - `public/assets/paul/PaulLiriel.png`: user-provided Paul Liriel character sheet.
 - `public/assets/paul/paul-*.png`: gameplay crops derived from the provided Paul sheet.
 

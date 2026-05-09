@@ -25,6 +25,7 @@ export class MainScene extends Phaser.Scene {
   private wasd?: MovementKeys;
   private spaceKey?: Phaser.Input.Keyboard.Key;
   private enterKey?: Phaser.Input.Keyboard.Key;
+  private kyleCharacter!: Kyle;
   private kyle!: KyleSprite;
   private paul!: Paul;
   private objects: WindOrbSprite[] = [];
@@ -122,7 +123,8 @@ export class MainScene extends Phaser.Scene {
   }
 
   private createCharacters(): void {
-    this.kyle = new Kyle(this, 168, 320).sprite;
+    this.kyleCharacter = new Kyle(this, 168, 320);
+    this.kyle = this.kyleCharacter.sprite;
     this.paul = new Paul(this, 104, 358);
 
     this.physics.add.collider(this.kyle, this.walls);
@@ -158,6 +160,7 @@ export class MainScene extends Phaser.Scene {
     if (movement.lengthSq() > 0) {
       movement.normalize();
       this.lastFacing.copy(movement);
+      this.kyleCharacter.setDirectionFromMovement(movement.x, movement.y, this.time.now);
       this.kyle.body.setVelocity(movement.x * PLAYER_SPEED, movement.y * PLAYER_SPEED);
     } else {
       this.kyle.body.setVelocity(0, 0);

@@ -6,6 +6,15 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
+    this.load.image("kyle-front", "/assets/kyle/kyle-front.png");
+    this.load.image("kyle-back", "/assets/kyle/kyle-back.png");
+    this.load.image("kyle-left", "/assets/kyle/kyle-left.png");
+    this.load.image("kyle-right", "/assets/kyle/kyle-right.png");
+    this.load.image("kyle-walk-right-1", "/assets/kyle/kyle-walk-right-1.png");
+    this.load.image("kyle-walk-right-2", "/assets/kyle/kyle-walk-right-2.png");
+    this.load.image("kyle-walk-right-3", "/assets/kyle/kyle-walk-right-3.png");
+    this.load.image("kyle-walk-right-4", "/assets/kyle/kyle-walk-right-4.png");
+    this.load.image("kyle-walk-right-5", "/assets/kyle/kyle-walk-right-5.png");
     this.load.image("paul-front", "/assets/paul/paul-front.png");
     this.load.image("paul-back", "/assets/paul/paul-back.png");
     this.load.image("paul-left", "/assets/paul/paul-left.png");

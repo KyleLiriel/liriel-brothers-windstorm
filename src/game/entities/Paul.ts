@@ -12,7 +12,7 @@ export class Paul {
     this.sprite.setOrigin(0.5, 0.82);
   }
 
-  follow(target: Phaser.GameObjects.Container, deltaSeconds: number): void {
+  follow(target: { x: number; y: number }, deltaSeconds: number): void {
     const targetDistance = 78;
     const dx = target.x - this.sprite.x;
     const dy = target.y - this.sprite.y;
