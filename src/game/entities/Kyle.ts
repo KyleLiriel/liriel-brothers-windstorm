@@ -6,19 +6,9 @@ export type KyleSprite = Phaser.GameObjects.Sprite & {
 
 type KyleDirection = "front" | "back" | "left" | "right";
 
-const RIGHT_WALK_FRAMES = [
-  "kyle-walk-right-1",
-  "kyle-walk-right-2",
-  "kyle-walk-right-3",
-  "kyle-walk-right-4",
-  "kyle-walk-right-5",
-];
-
 export class Kyle {
   readonly sprite: KyleSprite;
   private direction: KyleDirection = "front";
-  private walkFrame = 0;
-  private nextWalkFrameAt = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     this.sprite = scene.add.sprite(x, y, "kyle-front") as KyleSprite;
@@ -30,7 +20,7 @@ export class Kyle {
     this.sprite.body.setCollideWorldBounds(true);
   }
 
-  setDirectionFromMovement(dx: number, dy: number, now: number): void {
+  setDirectionFromMovement(dx: number, dy: number): void {
     let nextDirection: KyleDirection;
 
     if (Math.abs(dx) > Math.abs(dy)) {
@@ -39,26 +29,9 @@ export class Kyle {
       nextDirection = dy > 0 ? "front" : "back";
     }
 
-    if (nextDirection === "right") {
-      this.playRightWalk(now);
-      return;
-    }
-
     if (nextDirection !== this.direction) {
       this.direction = nextDirection;
-      this.walkFrame = 0;
       this.sprite.setTexture(`kyle-${nextDirection}`);
     }
-  }
-
-  private playRightWalk(now: number): void {
-    this.direction = "right";
-
-    if (now >= this.nextWalkFrameAt) {
-      this.walkFrame = (this.walkFrame + 1) % RIGHT_WALK_FRAMES.length;
-      this.nextWalkFrameAt = now + 110;
-    }
-
-    this.sprite.setTexture(RIGHT_WALK_FRAMES[this.walkFrame]);
   }
 }

@@ -160,7 +160,7 @@ export class MainScene extends Phaser.Scene {
     if (movement.lengthSq() > 0) {
       movement.normalize();
       this.lastFacing.copy(movement);
-      this.kyleCharacter.setDirectionFromMovement(movement.x, movement.y, this.time.now);
+      this.kyleCharacter.setDirectionFromMovement(movement.x, movement.y);
       this.kyle.body.setVelocity(movement.x * PLAYER_SPEED, movement.y * PLAYER_SPEED);
     } else {
       this.kyle.body.setVelocity(0, 0);
