@@ -65,4 +65,4 @@ docs/
 
 ## First Playable Goal
 
-Push all three movable objects onto the glowing tiles. Paul follows Kyle and reacts as the puzzle progresses. When all tiles are filled, the win dialogue appears.
+Start from the title screen, advance the Paul/Kyle intro dialogue, then push all three movable objects onto the glowing tiles. Paul follows Kyle and reacts as the puzzle progresses. When all tiles are filled, the win dialogue appears.

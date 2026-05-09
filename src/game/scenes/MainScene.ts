@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { failedWindDialogue, openingDialogue, paulActionComments, progressDialogue, winDialogue } from "../data/dialogues";
+import { failedWindDialogue, paulActionComments, progressDialogue, winDialogue } from "../data/dialogues";
 import { firstQuest } from "../data/quests";
 import { Kyle, type KyleSprite } from "../entities/Kyle";
 import { Paul } from "../entities/Paul";
@@ -67,7 +67,6 @@ export class MainScene extends Phaser.Scene {
     this.audio.startMusic();
     this.quest = new QuestSystem(this.goalTiles, this.objects);
     this.quest.update();
-    this.dialogue.show(openingDialogue);
   }
 
   update(_time: number, delta: number): void {

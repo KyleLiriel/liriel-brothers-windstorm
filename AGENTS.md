@@ -45,33 +45,36 @@ Create a playable prototype with:
 
 ```text
 liriel-brothers-windstorm/
-├─ AGENTS.md
-├─ README.md
-├─ package.json
-├─ index.html
-├─ tsconfig.json
-├─ vite.config.ts
-├─ src/
-│  ├─ main.ts
-│  ├─ game/
-│  │  ├─ scenes/
-│  │  │  ├─ BootScene.ts
-│  │  │  ├─ MainScene.ts
-│  │  │  └─ UIScene.ts
-│  │  ├─ entities/
-│  │  │  ├─ Kyle.ts
-│  │  │  ├─ Paul.ts
-│  │  │  └─ WindOrb.ts
-│  │  ├─ systems/
-│  │  │  ├─ DialogueSystem.ts
-│  │  │  └─ QuestSystem.ts
-│  │  └─ data/
-│  │     ├─ dialogues.ts
-│  │     └─ quests.ts
-│  └─ styles.css
-└─ docs/
-   ├─ game-design.md
-   └─ roadmap.md
+|- AGENTS.md
+|- README.md
+|- package.json
+|- index.html
+|- tsconfig.json
+|- vite.config.ts
+|- src/
+|  |- main.ts
+|  |- game/
+|  |  |- scenes/
+|  |  |  |- BootScene.ts
+|  |  |  |- IntroDialogueScene.ts
+|  |  |  |- MainScene.ts
+|  |  |  `- UIScene.ts
+|  |  |- entities/
+|  |  |  |- Kyle.ts
+|  |  |  |- Paul.ts
+|  |  |  `- WindOrb.ts
+|  |  |- systems/
+|  |  |  |- AudioSystem.ts
+|  |  |  |- CollisionSystem.ts
+|  |  |  |- DialogueSystem.ts
+|  |  |  `- QuestSystem.ts
+|  |  `- data/
+|  |     |- dialogues.ts
+|  |     `- quests.ts
+|  `- styles.css
+`- docs/
+   |- game-design.md
+   `- roadmap.md
 ```
 
 ## Current structure notes

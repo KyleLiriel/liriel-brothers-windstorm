@@ -5,22 +5,70 @@ export type DialogueLine = {
   text: string;
 };
 
-export const openingDialogue: DialogueLine[] = [
-  {
-    speaker: "Kyle",
-    text: "Paul, stop following me. I know what dark mages look like.",
-  },
+export const introDialogue: DialogueLine[] = [
   {
     speaker: "Paul",
-    text: "Kyle, you are eight. Yesterday you accused a broom of necromancy.",
+    text: "Kyle.",
   },
   {
     speaker: "Kyle",
-    text: "That broom moved by itself.",
+    text: "J’ai rien fait.",
   },
   {
     speaker: "Paul",
-    text: "Because you sneezed wind magic at it. Move the crates onto those tiles before someone sees us.",
+    text: "Remarquable. Tu mens avant même de savoir de quoi je parle.",
+  },
+  {
+    speaker: "Kyle",
+    text: "C’est parce que tu prends toujours ta voix de mage noir.",
+  },
+  {
+    speaker: "Paul",
+    text: "Je prends ma voix de grand frère qui vient de trouver trois dalles magiques complètement déplacées.",
+  },
+  {
+    speaker: "Kyle",
+    text: "Elles avaient l’air tristes.",
+  },
+  {
+    speaker: "Paul",
+    text: "Les dalles ne sont pas tristes, Kyle.",
+  },
+  {
+    speaker: "Kyle",
+    text: "Tu dis ça parce que tu ne les écoutes pas.",
+  },
+  {
+    speaker: "Paul",
+    text: "Mère veut que tu ranges tout avant le dîner. Et, par une décision injuste de l’univers, je dois te surveiller.",
+  },
+  {
+    speaker: "Kyle",
+    text: "Donc tu es mon gardien ?",
+  },
+  {
+    speaker: "Paul",
+    text: "Je suis ton témoin. Pour le procès.",
+  },
+  {
+    speaker: "Kyle",
+    text: "Je savais que tu étais un mage noir.",
+  },
+  {
+    speaker: "Paul",
+    text: "Avance, lutin farceur. Tu dois remettre les trois dalles lumineuses en place.",
+  },
+  {
+    speaker: "Kyle",
+    text: "Si je réussis, tu arrêtes d’être menaçant ?",
+  },
+  {
+    speaker: "Paul",
+    text: "Je promets d’être menaçant en silence.",
+  },
+  {
+    speaker: "Kyle",
+    text: "Marché conclu !",
   },
 ];
 

@@ -55,15 +55,23 @@ export class BootScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(width / 2, 430, "Press Enter, Space, or click to begin", {
+      .text(width / 2, 410, "Start", {
         color: "#eaf8c7",
-        fontSize: "22px",
+        fontSize: "34px",
         fontStyle: "bold",
       })
       .setOrigin(0.5);
 
-    this.input.keyboard?.once("keydown-ENTER", () => this.scene.start("MainScene"));
-    this.input.keyboard?.once("keydown-SPACE", () => this.scene.start("MainScene"));
-    this.input.once("pointerdown", () => this.scene.start("MainScene"));
+    this.add
+      .text(width / 2, 456, "Press Enter, Space, or click", {
+        color: "#eaf8c7",
+        fontSize: "20px",
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5);
+
+    this.input.keyboard?.once("keydown-ENTER", () => this.scene.start("IntroDialogueScene"));
+    this.input.keyboard?.once("keydown-SPACE", () => this.scene.start("IntroDialogueScene"));
+    this.input.once("pointerdown", () => this.scene.start("IntroDialogueScene"));
   }
 }
