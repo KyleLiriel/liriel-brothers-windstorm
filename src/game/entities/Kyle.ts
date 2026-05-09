@@ -1,10 +1,14 @@
 import Phaser from "phaser";
+import { getFootHitbox, moveWithCollisions, type CollisionRect } from "../systems/CollisionSystem";
 
 export type KyleSprite = Phaser.GameObjects.Sprite & {
   body: Phaser.Physics.Arcade.Body;
 };
 
 type KyleDirection = "front" | "back" | "left" | "right";
+
+const HITBOX_WIDTH = 30;
+const HITBOX_HEIGHT = 34;
 
 export class Kyle {
   readonly sprite: KyleSprite;
@@ -15,9 +19,17 @@ export class Kyle {
     this.sprite.setDisplaySize(48, 74);
     this.sprite.setOrigin(0.5, 0.82);
     scene.physics.add.existing(this.sprite);
-    this.sprite.body.setSize(30, 34);
+    this.sprite.body.setSize(HITBOX_WIDTH, HITBOX_HEIGHT);
     this.sprite.body.setOffset(this.sprite.width / 2 - 15, this.sprite.height * 0.66);
     this.sprite.body.setCollideWorldBounds(true);
+  }
+
+  moveBy(dx: number, dy: number, obstacles: CollisionRect[]): void {
+    const hitbox = this.getHitbox();
+    const result = moveWithCollisions(hitbox, dx, dy, obstacles);
+
+    this.sprite.setPosition(result.x + HITBOX_WIDTH / 2, result.y + HITBOX_HEIGHT);
+    this.sprite.body.reset(this.sprite.x, this.sprite.y);
   }
 
   setDirectionFromMovement(dx: number, dy: number): void {
@@ -33,5 +45,9 @@ export class Kyle {
       this.direction = nextDirection;
       this.sprite.setTexture(`kyle-${nextDirection}`);
     }
+  }
+
+  private getHitbox(): CollisionRect {
+    return getFootHitbox(this.sprite.x, this.sprite.y, HITBOX_WIDTH, HITBOX_HEIGHT);
   }
 }

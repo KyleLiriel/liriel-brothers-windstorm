@@ -4,6 +4,8 @@ import { firstQuest } from "../data/quests";
 import { Kyle, type KyleSprite } from "../entities/Kyle";
 import { Paul } from "../entities/Paul";
 import { WindOrb, type WindOrbSprite } from "../entities/WindOrb";
+import { AudioSystem } from "../systems/AudioSystem";
+import type { CollisionRect } from "../systems/CollisionSystem";
 import { DialogueSystem } from "../systems/DialogueSystem";
 import { QuestSystem } from "../systems/QuestSystem";
 
@@ -12,6 +14,7 @@ const PLAYER_SPEED = 210;
 const GUST_RANGE = 112;
 const GUST_PUSH_SPEED = 622;
 const WIND_COOLDOWN_MS = 650;
+const PUZZLE_OBJECT_HITBOX_SIZE = 46;
 
 type MovementKeys = {
   up: Phaser.Input.Keyboard.Key;
@@ -25,11 +28,14 @@ export class MainScene extends Phaser.Scene {
   private wasd?: MovementKeys;
   private spaceKey?: Phaser.Input.Keyboard.Key;
   private enterKey?: Phaser.Input.Keyboard.Key;
+  private muteKey?: Phaser.Input.Keyboard.Key;
+  private audio!: AudioSystem;
   private kyleCharacter!: Kyle;
   private kyle!: KyleSprite;
   private paul!: Paul;
   private objects: WindOrbSprite[] = [];
   private goalTiles: Phaser.GameObjects.Rectangle[] = [];
+  private obstacleRects: CollisionRect[] = [];
   private walls!: Phaser.Physics.Arcade.StaticGroup;
   private lastFacing = new Phaser.Math.Vector2(1, 0);
   private dialogue = new DialogueSystem();
@@ -47,6 +53,7 @@ export class MainScene extends Phaser.Scene {
   create(): void {
     this.objects = [];
     this.goalTiles = [];
+    this.obstacleRects = [];
     this.hasPlayedProgressDialogue = false;
     this.nextWindReadyAt = 0;
     this.windCastCount = 0;
@@ -56,6 +63,8 @@ export class MainScene extends Phaser.Scene {
     this.createWorld();
     this.createCharacters();
     this.createInput();
+    this.audio = new AudioSystem(this);
+    this.audio.startMusic();
     this.quest = new QuestSystem(this.goalTiles, this.objects);
     this.quest.update();
     this.dialogue.show(openingDialogue);
@@ -65,13 +74,13 @@ export class MainScene extends Phaser.Scene {
     this.handleDialogueInput();
 
     if (!this.dialogue.isOpen() && !this.won) {
-      this.moveKyle();
+      this.moveKyle(delta / 1000);
       this.castWindIfReady(this.time.now);
     } else {
       this.kyle.body.setVelocity(0, 0);
     }
 
-    this.paul.follow(this.kyle, delta / 1000);
+    this.paul.follow(this.kyle, delta / 1000, this.getCharacterObstacles());
     this.checkGoals();
   }
 
@@ -108,6 +117,12 @@ export class MainScene extends Phaser.Scene {
     const wall = this.add.rectangle(x, y, width, height, 0x182033);
     this.physics.add.existing(wall, true);
     this.walls.add(wall);
+    this.obstacleRects.push({
+      x: x - width / 2,
+      y: y - height / 2,
+      width,
+      height,
+    });
   }
 
   private createGoalTile(x: number, y: number): void {
@@ -127,7 +142,6 @@ export class MainScene extends Phaser.Scene {
     this.kyle = this.kyleCharacter.sprite;
     this.paul = new Paul(this, 104, 358);
 
-    this.physics.add.collider(this.kyle, this.walls);
     for (const object of this.objects) {
       this.physics.add.collider(object, this.walls);
       this.physics.add.collider(this.kyle, object);
@@ -145,10 +159,11 @@ export class MainScene extends Phaser.Scene {
     };
     this.spaceKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.enterKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+    this.muteKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.M);
     this.input.on("pointerdown", () => this.dialogue.advance());
   }
 
-  private moveKyle(): void {
+  private moveKyle(deltaSeconds: number): void {
     if (!this.cursors || !this.wasd) return;
 
     const movement = new Phaser.Math.Vector2(0, 0);
@@ -161,7 +176,11 @@ export class MainScene extends Phaser.Scene {
       movement.normalize();
       this.lastFacing.copy(movement);
       this.kyleCharacter.setDirectionFromMovement(movement.x, movement.y);
-      this.kyle.body.setVelocity(movement.x * PLAYER_SPEED, movement.y * PLAYER_SPEED);
+      this.kyleCharacter.moveBy(
+        movement.x * PLAYER_SPEED * deltaSeconds,
+        movement.y * PLAYER_SPEED * deltaSeconds,
+        this.getCharacterObstacles(),
+      );
     } else {
       this.kyle.body.setVelocity(0, 0);
     }
@@ -177,9 +196,24 @@ export class MainScene extends Phaser.Scene {
     const origin = new Phaser.Math.Vector2(this.kyle.x, this.kyle.y);
     this.nextWindReadyAt = now + WIND_COOLDOWN_MS;
     this.windCastCount += 1;
+    this.audio.playSfx("wind");
     this.showWindGust(origin);
     const pushedCount = this.pushObjectsInWindCone(origin);
+    if (pushedCount > 0) {
+      this.audio.playSfx("objectPushed");
+    }
     this.reactToWindCast(pushedCount);
+  }
+
+  private getCharacterObstacles(): CollisionRect[] {
+    const puzzleObjectRects = this.objects.map((object) => ({
+      x: object.x - PUZZLE_OBJECT_HITBOX_SIZE / 2,
+      y: object.y - PUZZLE_OBJECT_HITBOX_SIZE / 2,
+      width: PUZZLE_OBJECT_HITBOX_SIZE,
+      height: PUZZLE_OBJECT_HITBOX_SIZE,
+    }));
+
+    return [...this.obstacleRects, ...puzzleObjectRects];
   }
 
   private showWindGust(origin: Phaser.Math.Vector2): void {
@@ -270,6 +304,7 @@ export class MainScene extends Phaser.Scene {
     if (this.windCastCount >= this.nextPaulCommentAt) {
       const commentIndex = Math.floor(this.windCastCount / 3 - 1) % paulActionComments.length;
       this.nextPaulCommentAt += 3;
+      this.audio.playSfx("lightning");
       this.dialogue.show(paulActionComments[commentIndex]);
     }
   }
@@ -285,11 +320,19 @@ export class MainScene extends Phaser.Scene {
     if (result.complete && !this.won) {
       this.won = true;
       this.kyle.body.setVelocity(0, 0);
-      this.dialogue.show(winDialogue, () => this.quest.showSolvedMessage());
+      this.audio.playSfx("puzzleSolved");
+      this.dialogue.show(winDialogue, () => {
+        this.audio.playSfx("victory");
+        this.quest.showSolvedMessage();
+      });
     }
   }
 
   private handleDialogueInput(): void {
+    if (this.muteKey && Phaser.Input.Keyboard.JustDown(this.muteKey)) {
+      this.audio.toggleMute();
+    }
+
     if (!this.dialogue.isOpen()) return;
 
     const spacePressed = this.spaceKey ? Phaser.Input.Keyboard.JustDown(this.spaceKey) : false;

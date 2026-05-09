@@ -1,6 +1,10 @@
 import Phaser from "phaser";
+import { getFootHitbox, moveWithCollisions, type CollisionRect } from "../systems/CollisionSystem";
 
 type PaulDirection = "front" | "back" | "left" | "right";
+
+const HITBOX_WIDTH = 30;
+const HITBOX_HEIGHT = 34;
 
 export class Paul {
   readonly sprite: Phaser.GameObjects.Sprite;
@@ -12,7 +16,7 @@ export class Paul {
     this.sprite.setOrigin(0.5, 0.82);
   }
 
-  follow(target: { x: number; y: number }, deltaSeconds: number): void {
+  follow(target: { x: number; y: number }, deltaSeconds: number, obstacles: CollisionRect[]): void {
     const targetDistance = 78;
     const dx = target.x - this.sprite.x;
     const dy = target.y - this.sprite.y;
@@ -20,8 +24,7 @@ export class Paul {
 
     if (distance > targetDistance) {
       const step = Math.min((distance - targetDistance) * 4 * deltaSeconds, distance);
-      this.sprite.x += (dx / distance) * step;
-      this.sprite.y += (dy / distance) * step;
+      this.moveBy((dx / distance) * step, (dy / distance) * step, obstacles);
       this.setDirectionFromMovement(dx, dy);
     }
   }
@@ -39,5 +42,12 @@ export class Paul {
       this.direction = nextDirection;
       this.sprite.setTexture(`paul-${nextDirection}`);
     }
+  }
+
+  private moveBy(dx: number, dy: number, obstacles: CollisionRect[]): void {
+    const hitbox = getFootHitbox(this.sprite.x, this.sprite.y, HITBOX_WIDTH, HITBOX_HEIGHT);
+    const result = moveWithCollisions(hitbox, dx, dy, obstacles);
+
+    this.sprite.setPosition(result.x + HITBOX_WIDTH / 2, result.y + HITBOX_HEIGHT);
   }
 }

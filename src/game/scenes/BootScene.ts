@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { AudioSystem } from "../systems/AudioSystem";
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -6,6 +7,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
+    AudioSystem.preload(this);
     this.load.image("kyle-front", "/assets/kyle/kyle-front.png");
     this.load.image("kyle-back", "/assets/kyle/kyle-back.png");
     this.load.image("kyle-left", "/assets/kyle/kyle-left.png");
